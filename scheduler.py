@@ -20,6 +20,10 @@ def trigger_notebook(notebook_id: str, enable_gpu: bool) -> str:
         capture_output=True, text=True
     )
 
+    if pull.returncode != 0:
+        print(f"  ❌ Pull failed: {pull.stderr.strip()}")
+        return "error"
+
     # Step 2 — open the metadata file
     meta_path = "/tmp/kernel_push/kernel-metadata.json"
     with open(meta_path) as f:
