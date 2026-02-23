@@ -5,7 +5,6 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-KAGGLE_USERNAME = padamire
 NOTEBOOK_A_ID = f"{KAGGLE_USERNAME}/lstm-trainer-condensed"
 NOTEBOOK_B_ID = f"{KAGGLE_USERNAME}/xgb-trainer"
 
