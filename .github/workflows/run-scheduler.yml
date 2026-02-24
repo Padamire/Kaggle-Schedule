@@ -20,11 +20,7 @@ jobs:
   
       - name: Test Kaggle authentication
         env:
-          KAGGLE_USERNAME: padamire
-          KAGGLE_KEY: KGAT_8af1f345aafc157a7d4f958a8d56f3f0
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
-          mkdir -p ~/.config/kaggle
-          echo '{"username":"'$KAGGLE_USERNAME'","key":"'$KAGGLE_KEY'"}' > ~/.config/kaggle/kaggle.json
-          chmod 600 ~/.config/kaggle/kaggle.json
-          kaggle config view
           kaggle kernels list --mine
