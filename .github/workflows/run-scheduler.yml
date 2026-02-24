@@ -11,14 +11,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Kaggle CLI
-        run: pip install kaggle
+        run: pip install --upgrade kaggle
   
       - name: Run scheduler
         run: |
-          mkdir -p ~/.kaggle
+          mkdir -p ~/.kaggle 
           echo '{"username":"padamire","key":"KGAT_987a028353132dedfb6493664f77a2e7"}' > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
           cat ~/.kaggle/kaggle.json
-
+          kaggle config view
           kaggle kernels list --mine
           python scheduler.py
