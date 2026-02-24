@@ -17,8 +17,16 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+
+
         run: |
-          kaggle kernels list --mine
-          python scheduler.py
-          
+            mkdir -p ~/.kaggle
+            cat > ~/.kaggle/kaggle.json << 'EOF'
+            {"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}
+            EOF
+            chmod 600 ~/.kaggle/kaggle.json
+            cat ~/.kaggle/kaggle.json  # print it so you can see exactly what was written
+            kaggle kernels list --mine
+            python scheduler.py
+                
 
