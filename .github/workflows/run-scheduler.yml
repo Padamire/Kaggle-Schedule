@@ -14,14 +14,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
-
+          
       - name: Install Kaggle CLI
-        run: pip install --upgrade kaggle
+        run: pip install 'kaggle>=1.6.17'
   
       - name: Test Kaggle authentication
         env:
           KAGGLE_USERNAME: padamire
           KAGGLE_KEY: KGAT_8af1f345aafc157a7d4f958a8d56f3f0
         run: |
+          mkdir -p ~/.config/kaggle
+          echo '{"username":"'$KAGGLE_USERNAME'","key":"'$KAGGLE_KEY'"}' > ~/.config/kaggle/kaggle.json
+          chmod 600 ~/.config/kaggle/kaggle.json
           kaggle config view
           kaggle kernels list --mine
