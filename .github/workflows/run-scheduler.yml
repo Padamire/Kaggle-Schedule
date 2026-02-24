@@ -14,16 +14,11 @@ jobs:
         run: pip install kaggle
   
       - name: Run scheduler
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           mkdir -p ~/.kaggle
-          cat > ~/.kaggle/kaggle.json << 'EOF'
-          {"username":"padamire","key":"KGAT_987a028353132dedfb6493664f77a2e7"}
-      
-          EOF
+          echo '{"username":"padamire","key":"KGAT_987a028353132dedfb6493664f77a2e7"}' > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
           cat ~/.kaggle/kaggle.json
+
           kaggle kernels list --mine
           python scheduler.py
