@@ -21,7 +21,7 @@ jobs:
       - name: Configure Kaggle CLI
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"padamire",\"key\":\"KGAT_8af1f345aafc157a7d4f958a8d56f3f0"}" > ~/.kaggle/kaggle.json
+          echo "{\"username\":\"padamire\",\"key\":\"KGAT_8af1f345aafc157a7d4f958a8d56f3f0\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
           kaggle config view
 
