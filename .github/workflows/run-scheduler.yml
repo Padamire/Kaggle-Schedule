@@ -12,21 +12,15 @@ jobs:
 
       - name: Install Kaggle CLI
         run: pip install kaggle
-
+  
       - name: Run scheduler
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-
-
         run: |
-            mkdir -p ~/.kaggle
-            cat > ~/.kaggle/kaggle.json << 'EOF'
-            {"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}
-            EOF
-            chmod 600 ~/.kaggle/kaggle.json
-            cat ~/.kaggle/kaggle.json  # print it so you can see exactly what was written
-            kaggle kernels list --mine
-            python scheduler.py
-                
-
+          mkdir -p ~/.kaggle
+          echo "{\"username\":\"$KAGGLE_USERNAME\",\"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+          cat ~/.kaggle/kaggle.json  # optional, just for debugging
+          kaggle kernels list --mine
+          python scheduler.py
