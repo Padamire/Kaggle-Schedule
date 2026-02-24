@@ -10,13 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
       - name: Install Kaggle CLI
         run: pip install --upgrade kaggle
   
       - name: Run scheduler
         run: |
           mkdir -p ~/.kaggle 
-          echo '{"username":"padamire","key":"KGAT_987a028353132dedfb6493664f77a2e7"}' > ~/.kaggle/kaggle.json
+          echo '{"username":"padamire","key":"KGAT_8af1f345aafc157a7d4f958a8d56f3f0"}' > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
           cat ~/.kaggle/kaggle.json
           kaggle config view
