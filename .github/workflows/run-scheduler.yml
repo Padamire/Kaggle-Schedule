@@ -22,5 +22,6 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: |
-          kaggle kernels list --mine
+        run:
+          scheduler.py
+          
