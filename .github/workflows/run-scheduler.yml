@@ -2,6 +2,10 @@ name: Run Scheduler
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Scheduler"]  
+    types:
+      - completed 
 
 jobs:
   run:
