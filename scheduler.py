@@ -55,6 +55,7 @@ def get_notebook_status(notebook_id):
         ["kaggle", "kernels", "status", notebook_id],
         capture_output=True, text=True
     )
+    status = result.stdout.lower()
     print(status)
     return status
 
