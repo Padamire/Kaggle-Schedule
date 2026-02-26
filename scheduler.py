@@ -6,8 +6,7 @@ import threading
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-import shutil Path
-
+import shutil
 
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
