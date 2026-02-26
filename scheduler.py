@@ -37,11 +37,21 @@ def trigger_notebook(notebook_id: str, enable_gpu: bool) -> str:
     #     capture_output=True, text=True
     # )
 
+
     result = subprocess.run(
-        ["kaggle", "kernels", "status", f"{KAGGLE_USERNAME}/lstm-trainer-condensed"],
-        capture_output=True,
-        text=True
-    )
+    ["kaggle", "kernels", "output", f"{KAGGLE_USERNAME}/lstm-trainer-condensed", "-p", output_folder],
+    capture_output=True,
+    text=True
+)
+
+    print(result.stdout)
+
+
+    # result = subprocess.run(
+    #     ["kaggle", "kernels", "status", f"{KAGGLE_USERNAME}/lstm-trainer-condensed"],
+    #     capture_output=True,
+    #     text=True
+    # )
 
     print(result.stdout)
 
