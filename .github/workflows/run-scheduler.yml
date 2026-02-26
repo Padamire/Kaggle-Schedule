@@ -23,5 +23,5 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run:
-          scheduler.py
+          python scheduler.py
           
