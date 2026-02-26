@@ -2,56 +2,127 @@ import os
 import json
 import time
 import subprocess
+import threading
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+import shutil Path
+
 
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
-
 NOTEBOOK_A_ID = f"{KAGGLE_USERNAME}/lstm-trainer-condensed"
 NOTEBOOK_B_ID = f"{KAGGLE_USERNAME}/xgb-trainer"
 
+fatal_error = threading.Event()
 
-def trigger_notebook(notebook_id: str, enable_gpu: bool) -> str:
+def trigger_notebook(notebook_id, enable_gpu):
     print(f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S')}] Triggering {notebook_id} | GPU={enable_gpu}")
+
+    if Path("/tmp/kernel_push").exists():
+        shutil.rmtree("/tmp/kernel_push")
+    Path("/tmp/kernel_push").mkdir(parents=True)
 
     pull = subprocess.run(
         ["kaggle", "kernels", "pull", notebook_id, "-p", "/tmp/kernel_push", "-m"],
         capture_output=True, text=True
     )
-
-    # if pull.returncode != 0:
-    #     print(f"  ❌ Pull failed: {pull.stderr.strip()}")
-    #     return "error"
-
-    # # Step 2 — open the metadata file
-    # meta_path = "/tmp/kernel_push/kernel-metadata.json"
-    # with open(meta_path) as f:
-    #     meta = json.load(f)
-    # meta["enable_gpu"] = enable_gpu
-    # with open(meta_path, "w") as f:
-    #     json.dump(meta, f, indent=2)
-
-    # push = subprocess.run(
-    #     ["kaggle", "kernels", "push", "-p", "/tmp/kernel_push"],
-    #     capture_output=True, text=True
-    # )
-
-
-
-    result = subprocess.run(
-        ["kaggle", "kernels", "status", f"{KAGGLE_USERNAME}/lstm-trainer-condensed"],
-        capture_output=True,
-        text=True
+    if pull.returncode != 0:
+        fatal_error.set()
+        
+    # Step 2 — open the metadata file
+    meta_path = "/tmp/kernel_push/kernel-metadata.json"
+    with open(meta_path) as f:
+        meta = json.load(f)
+    meta["enable_gpu"] = enable_gpu
+    with open(meta_path, "w") as f:
+        json.dump(meta, f, indent=2)
+    push = subprocess.run(
+        ["kaggle", "kernels", "push", "-p", "/tmp/kernel_push"],
+        capture_output=True, text=True
     )
 
-    print(result.stdout)
+    combined = (push.stdout + push.stderr).lower()
+
+    if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
+        return "quota_exceeded"
+    if push.returncode != 0:
+        fatal_error.set()
+        
+    return "ok"
+    
+def get_notebook_status(notebook_id):
+    result = subprocess.run(
+        ["kaggle", "kernels", "status", notebook_id],
+        capture_output=True, text=True
+    )
+    print(status)
+    return status
 
 
+def watch_notebook(notebook_id, allow_gpu,label):
+    gpu_gone = False
+    def trigger():
+        #Check if GPU is allowed (False for XGB and True for LSTM) and whether quota is exceeded
+        nonlocal gpu_gone 
+        
+        if allow_gpu and not gpu_gone:
+            result = trigger_notebook(notebook_id, enable_gpu=True)
+            if result == "quota_exceeded":
+                gpu_gone = True
+                return trigger_notebook(notebook_id, enable_gpu=False)
+            else:
+                return 
+        else:
+            #Exclusively for XGB
+            return trigger_notebook(notebook_id, enable_gpu=False)
+            
+    #Check Status of notebook to - if unknown, begin run, otherwise carry on
+    status = get_notebook_status(notebook_id)
+    if status == "running":
+        pass
+    elif status == 'unknown':
+        trigger()
+    else:
+        fatal_error.set()
+        
+    run_start = datetime.now(timezone.utc)
+
+    
+    while True:
+        time.sleep(60)
+        status = get_notebook_status(notebook_id)
+
+        elapsed = (datetime.now(timezone.utc) - run_start).total_seconds() / 3600
+        mode = "GPU" if (allow_gpu and not gpu_gone) else "CPU"
+        print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")#
+        if status !== "running":
+            fatal_error.set()
+            break
 
 
-trigger_notebook(NOTEBOOK_A_ID, enable_gpu = True)
+if __name__ == "__main__":
+    thread_a = threading.Thread(
+        target=watch_notebook,
+        args=(NOTEBOOK_A_ID, True, "LSTM Trainer"),   # allow_gpu=True
+        daemon=False
+    )
+    
+    thread_b = threading.Thread(
+        target=watch_notebook,
+        args=(NOTEBOOK_B_ID, False, "XGB Trainer"),   # allow_gpu=False
+        daemon=False
+    )
 
+
+    thread_a.start()
+    thread_b.start()
+    thread_a.join()
+    thread_b.join()
+
+    if fatal_error.is_set():
+        print("\n❌ Fatal error encountered — exiting with error code")
+        sys.exit(1)
 
 
 
