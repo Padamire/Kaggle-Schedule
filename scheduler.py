@@ -28,11 +28,20 @@ def trigger_notebook(notebook_id: str, enable_gpu: bool) -> str:
     meta_path = "/tmp/kernel_push/kernel-metadata.json"
     with open(meta_path) as f:
         meta = json.load(f)
+    meta["enable_gpu"] = enable_gpu
+    with open(meta_path, "w") as f:
+        json.dump(meta, f, indent=2)
 
-    print(meta)
+    push = subprocess.run(
+        ["kaggle", "kernels", "push", "-p", "/tmp/kernel_push"],
+        capture_output=True, text=True
+    )
+    print(f"  📤 Push stdout: {push.stdout.strip()}")
+    print(f"  📤 Push stderr: {push.stderr.strip()}")
 
 
-trigger_notebook(NOTEBOOK_A_ID, enable_gpu = False)
+trigger_notebook(NOTEBOOK_A_ID, enable_gpu = True)
+
 
 
 
