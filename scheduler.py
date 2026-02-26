@@ -78,11 +78,13 @@ def watch_notebook(notebook_id, allow_gpu,label):
             return trigger_notebook(notebook_id, enable_gpu=False)
             
     #Check Status of notebook to - if unknown, begin run, otherwise carry on
-    status = get_notebook_status(notebook_id)
-    if status != "unknown":
-        fatal_error.set()
-        exit_line()
-        
+    # status = get_notebook_status(notebook_id)
+    # if status != "unknown":
+    #     fatal_error.set()
+    #     exit_line()
+
+    trigger()
+    
     run_start = datetime.now(timezone.utc)
 
     while True:
