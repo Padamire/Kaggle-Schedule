@@ -95,7 +95,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
         elapsed = (datetime.now(timezone.utc) - run_start).total_seconds() / 3600
         mode = "GPU" if (allow_gpu and not gpu_gone) else "CPU"
         print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")#
-        if status !== "running":
+        if status != "running":
             fatal_error.set()
             break
 
