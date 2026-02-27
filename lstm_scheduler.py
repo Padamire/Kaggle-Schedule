@@ -32,7 +32,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     if pull.returncode != 0:
         print(f"  Pull returncode: {pull.returncode}")
         print(f"  Pull stdout: {pull.stdout.strip()}")
-        print(f"  Pull stderr: {pull.stderr.strip()}")  # ← this will tell you exactly why
+        print(f"  Pull stderr: {pull.stderr.strip()}")  
 
         print(f'pull return code is {pull.returncode}')
         print('return code not complete')
@@ -107,11 +107,11 @@ def watch_notebook(notebook_id, allow_gpu,label):
             #Exclusively for XGB
             return trigger_notebook(notebook_id, enable_gpu=False)
             
-    Check Status of notebook to - if unknown, begin run, otherwise carry on
+    #Check Status of notebook to - if unknown, begin run, otherwise carry on
+    
     status = get_notebook_status(notebook_id)
     if 'running' in status:
         exit_line()
-
     trigger()
     
     run_start = datetime.now(timezone.utc)
