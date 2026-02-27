@@ -1,4 +1,4 @@
-name: Run Scheduler
+name: LSTM Run Scheduler
 
 on:
   workflow_dispatch:
