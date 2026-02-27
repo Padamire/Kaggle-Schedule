@@ -12,7 +12,6 @@ KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
 NOTEBOOK_ID = f"{KAGGLE_USERNAME}/lstm-trainer-condensed"
 
-fatal_error = threading.Event()
 
 def trigger_notebook(notebook_id, enable_gpu):
     safe_id = notebook_id.replace("/", "_")
