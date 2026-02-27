@@ -1,4 +1,4 @@
-name: Run Scheduler
+name: XGB Run Scheduler
 
 on:
   workflow_dispatch:
