@@ -166,7 +166,8 @@ if __name__ == "__main__":
     else:
         try:
             watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
-        except SystemExit:
+        except Exception as e:
+            print(e)
             sys.exit(1)
             time.sleep(30)
-            continue
+
