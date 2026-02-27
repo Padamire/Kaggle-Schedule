@@ -85,8 +85,8 @@ def get_notebook_status(notebook_id):
 
     for key, value in status_map.items():
         if key in status:
-            print(f'this is the status:{status}')
-            return status
+            print(f'this is the status:{key}')
+            return key
             
 
 
@@ -131,8 +131,6 @@ def watch_notebook(notebook_id, allow_gpu,label):
         if status != "running":
             print(f'status error: status is {status}')
             break
-
-        time.sleep(60)
 
 
 if __name__ == "__main__":
