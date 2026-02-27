@@ -32,6 +32,7 @@ def trigger_notebook(notebook_id, enable_gpu):
         capture_output=True, text=True
     )
     if pull.returncode != 0:
+        print(f'pull return code is {pull.returncode}')
         print('return code not complete')
         fatal_error.set()
         
@@ -57,6 +58,7 @@ def trigger_notebook(notebook_id, enable_gpu):
         return "quota_exceeded"
         
     if push.returncode != 0:
+        print(f'push return code is {push.returncode}')
         print('return code not complete')
         fatal_error.set()
         
@@ -100,7 +102,6 @@ def watch_notebook(notebook_id, allow_gpu,label):
     run_start = datetime.now(timezone.utc)
 
     while True:
-        time.sleep(60)
         status = get_notebook_status(notebook_id)
 
         print(f'running status: {status}')
@@ -112,6 +113,8 @@ def watch_notebook(notebook_id, allow_gpu,label):
         if status != "running":
             fatal_error.set()
             break
+
+        time.sleep(60)
 
 
 if __name__ == "__main__":
