@@ -15,13 +15,6 @@ NOTEBOOK_B_ID = f"{KAGGLE_USERNAME}/xgb-trainer"
 
 fatal_error = threading.Event()
 
-def cancel_notebook(notebook_id):
-    
-    result = subprocess.run(
-        ["kaggle", "kernels", "cancel", notebook_id],
-        capture_output=True, text=True
-    )
-    return result.returncode == 0
 
 def trigger_notebook(notebook_id, enable_gpu):
     safe_id = notebook_id.replace("/", "_")
@@ -128,6 +121,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
         print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
         
         if status != "running":
+            print(f'status error: status is {status}')
             fatal_error.set()
             break
 
@@ -154,10 +148,7 @@ if __name__ == "__main__":
     thread_b.join()
 
     if fatal_error.is_set():
-        result = subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_A_ID],capture_output=True, text=True)
-        result2 = subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_B_ID],capture_output=True, text=True)
-        print(result2)
-        print(result)
+
         print("\n❌ Fatal error encountered — exiting with error code")
         sys.exit(1)
 
