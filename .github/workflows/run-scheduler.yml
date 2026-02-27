@@ -3,7 +3,7 @@ name: Run Scheduler
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Run Restarter"]  
+    workflows: ["Restart Scheduler"]  
     types:
       - completed 
 
