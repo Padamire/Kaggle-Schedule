@@ -139,6 +139,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        watch(f"{args.notebook}/xgb_trainer", allow_gpu=args.gpu, label=args.label)
+        watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
     except SystemExit:
         sys.exit(1)
