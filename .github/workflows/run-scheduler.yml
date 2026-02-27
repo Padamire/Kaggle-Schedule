@@ -30,6 +30,7 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          PYTHONUNBUFFERED: 1 
         run:
           python lstm_scheduler.py
           
