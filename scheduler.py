@@ -154,9 +154,10 @@ if __name__ == "__main__":
     thread_b.join()
 
     if fatal_error.is_set():
-        subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_A_ID],capture_output=True, text=True)
-        subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_B_ID],capture_output=True, text=True)
-        
+        result = subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_A_ID],capture_output=True, text=True)
+        result2 = subprocess.run(["kaggle", "kernels", "cancel", NOTEBOOK_B_ID],capture_output=True, text=True)
+        print(result2)
+        print(result)
         print("\n❌ Fatal error encountered — exiting with error code")
         sys.exit(1)
 
