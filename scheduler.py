@@ -32,6 +32,7 @@ def trigger_notebook(notebook_id, enable_gpu):
         capture_output=True, text=True
     )
     if pull.returncode != 0:
+        print('return code not complete')
         fatal_error.set()
         
     # Step 2 — open the metadata file
@@ -43,16 +44,20 @@ def trigger_notebook(notebook_id, enable_gpu):
     meta["enable_gpu"] = enable_gpu
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
+        
     push = subprocess.run(
         ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
         capture_output=True, text=True
     )
 
     combined = (push.stdout + push.stderr).lower()
+    print(combined)
 
     if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
         return "quota_exceeded"
+        
     if push.returncode != 0:
+        print('return code not complete')
         fatal_error.set()
         
     return "ok"
@@ -63,7 +68,7 @@ def get_notebook_status(notebook_id):
         capture_output=True, text=True
     )
     status = result.stdout.lower()
-    print(status)
+    print(f'this is the status:{status}')
     return status
 
 
@@ -98,9 +103,12 @@ def watch_notebook(notebook_id, allow_gpu,label):
         time.sleep(60)
         status = get_notebook_status(notebook_id)
 
+        print(f'running status: {status}')
+
         elapsed = (datetime.now(timezone.utc) - run_start).total_seconds() / 3600
         mode = "GPU" if (allow_gpu and not gpu_gone) else "CPU"
-        print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")#
+        print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
+        
         if status != "running":
             fatal_error.set()
             break
