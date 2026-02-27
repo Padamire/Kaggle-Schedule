@@ -131,14 +131,39 @@ def watch_notebook(notebook_id, allow_gpu,label):
             print(f'status error: status is {status}')
             break
 
+
+def is_workflow_already_running(workflow_file):
+    github_token = os.environ.get("GH_PAT")
+    github_repo = os.environ.get("GITHUB_REPOSITORY")
+    result = subprocess.run([
+        "curl", "-s",
+        "-H", f"Authorization: token {github_token}",
+        "-H", "Accept: application/vnd.github.v3+json",
+        f"https://api.github.com/repos/{github_repo}/actions/workflows/{workflow_file}/runs?status=in_progress"
+    ], capture_output=True, text=True)
+    
+    data = json.loads(result.stdout)
+    runs = data.get("workflow_runs", [])
+
+    print(len(runs))
+    return len(runs) > 1
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--notebook", required=True)
     parser.add_argument("--gpu", action="store_true", help="Allow GPU usage")
     parser.add_argument("--label", required=True, help="Display label e.g. LSTM Trainer")
+    parser.add_argument("--workflow", required=True) 
     args = parser.parse_args()
 
-    try:
-        watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
-    except SystemExit:
-        sys.exit(1)
+    if is_workflow_already_running(args.workflow):
+        print("Another instance already running — exiting", flush=True)
+        sys.exit(0)
+        
+    while True:
+        try:
+            watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
+        except SystemExit:
+            sys.exit(1)
+            time.sleep(30)
+            continue
