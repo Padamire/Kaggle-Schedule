@@ -10,11 +10,9 @@ import shutil
 
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
-NOTEBOOK_A_ID = f"{KAGGLE_USERNAME}/lstm-trainer-condensed"
-NOTEBOOK_B_ID = f"{KAGGLE_USERNAME}/xgb-trainer"
+NOTEBOOK_ID = f"{KAGGLE_USERNAME}/lstm-trainer-condensed"
 
 fatal_error = threading.Event()
-
 
 def trigger_notebook(notebook_id, enable_gpu):
     safe_id = notebook_id.replace("/", "_")
@@ -31,7 +29,6 @@ def trigger_notebook(notebook_id, enable_gpu):
         capture_output=True, text=True
     )
 
-    
     if pull.returncode != 0:
         print(f"  Pull returncode: {pull.returncode}")
         print(f"  Pull stdout: {pull.stdout.strip()}")
@@ -39,7 +36,6 @@ def trigger_notebook(notebook_id, enable_gpu):
 
         print(f'pull return code is {pull.returncode}')
         print('return code not complete')
-        fatal_error.set()
         exit_line()
 
         
@@ -59,7 +55,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     )
 
     combined = (push.stdout + push.stderr).lower()
-    print(combined)
+
 
     if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
         return "quota_exceeded"
@@ -67,7 +63,8 @@ def trigger_notebook(notebook_id, enable_gpu):
     if push.returncode != 0:
         print(f'push return code is {push.returncode}')
         print('return code not complete')
-        fatal_error.set()
+        exit_line()
+
         
     return "ok"
     
@@ -77,7 +74,6 @@ def get_notebook_status(notebook_id):
         capture_output=True, text=True
     )
     status = result.stdout.lower()
-
 
     status_map = {
         "running": "running",
@@ -111,11 +107,10 @@ def watch_notebook(notebook_id, allow_gpu,label):
             #Exclusively for XGB
             return trigger_notebook(notebook_id, enable_gpu=False)
             
-    #Check Status of notebook to - if unknown, begin run, otherwise carry on
-    # status = get_notebook_status(notebook_id)
-    # if status != "unknown":
-    #     fatal_error.set()
-    #     exit_line()
+    Check Status of notebook to - if unknown, begin run, otherwise carry on
+    status = get_notebook_status(notebook_id)
+    if 'running' in status:
+        exit_line()
 
     trigger()
     
@@ -135,34 +130,16 @@ def watch_notebook(notebook_id, allow_gpu,label):
         
         if status != "running":
             print(f'status error: status is {status}')
-            fatal_error.set()
             break
 
         time.sleep(60)
 
 
 if __name__ == "__main__":
-    thread_a = threading.Thread(
-        target=watch_notebook,
-        args=(NOTEBOOK_A_ID, True, "LSTM Trainer"),   # allow_gpu=True
-        daemon=False
-    )
-    
-    thread_b = threading.Thread(
-        target=watch_notebook,
-        args=(NOTEBOOK_B_ID, False, "XGB Trainer"),   # allow_gpu=False
-        daemon=False
-    )
-
-
-    thread_a.start()
-    thread_b.start()
-    thread_a.join()
-    thread_b.join()
-
-    if fatal_error.is_set():
-
-        print("\n❌ Fatal error encountered — exiting with error code")
+    try:
+        watch_notebook(notebook_id = NOTEBOOK_ID,allow_gpu = True, label = 'LSTM Trainer')
+    except Exception as e:
+        print(e)
         sys.exit(1)
 
 
