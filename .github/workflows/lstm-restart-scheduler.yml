@@ -1,0 +1,13 @@
+name: LSTM Restart Scheduler
+
+on:
+  workflow_run:
+    workflows: ["LSTM Run Scheduler"]
+    types:
+      - completed
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "LSTM Run Scheduler completed, triggering restart..."
