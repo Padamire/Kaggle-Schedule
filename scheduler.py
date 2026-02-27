@@ -28,11 +28,19 @@ def trigger_notebook(notebook_id, enable_gpu):
     )
     if pull.returncode != 0:
         fatal_error.set()
+
+    print(f"  Pull returncode: {pull.returncode}")
+    print(f"  Pull stdout: {pull.stdout.strip()}")
+    print(f"  Pull stderr: {pull.stderr.strip()}")
+    print(f"  Files in /tmp/kernel_push: {list(Path('/tmp/kernel_push').iterdir())}")
+
         
     # Step 2 — open the metadata file
     meta_path = "/tmp/kernel_push/kernel-metadata.json"
+    
     with open(meta_path) as f:
         meta = json.load(f)
+        
     meta["enable_gpu"] = enable_gpu
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
