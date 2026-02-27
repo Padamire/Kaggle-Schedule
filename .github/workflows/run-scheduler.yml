@@ -32,5 +32,5 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
           PYTHONUNBUFFERED: 1 
         run:
-          python scheduler.py --notebook lstm-trainer-condensed --gpu True --label "LSTM Trainer"
+          python scheduler.py --notebook lstm-trainer-condensed --gpu --label "LSTM Trainer"
           
