@@ -2,10 +2,8 @@ name: XGB Run Scheduler
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["XGB Restart Scheduler"]  
-    types:
-      - completed 
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   run:
@@ -30,7 +28,10 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          
           PYTHONUNBUFFERED: 1 
         run:
-          python scheduler.py --notebook xgb-trainer --label "XGB Trainer"
+          python scheduler.py --notebook lstm-trainer-condensed --label 'XGB Trainer' --workflow xgb-scheduler.yml
           
