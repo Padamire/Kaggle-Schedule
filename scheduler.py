@@ -77,8 +77,21 @@ def get_notebook_status(notebook_id):
         capture_output=True, text=True
     )
     status = result.stdout.lower()
-    print(f'this is the status:{status}')
-    return status
+
+
+    status_map = {
+        "running": "running",
+        "complete": "complete",
+        "error": "error",
+        "cancel_acknowledged": "cancelacknowledged",
+        "queued": "queued"
+    }
+
+    for key, value in status_map.items():
+        if key in status:
+            print(f'this is the status:{status}')
+            return status
+            
 
 
 def watch_notebook(notebook_id, allow_gpu,label):
