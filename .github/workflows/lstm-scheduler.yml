@@ -3,7 +3,7 @@ name: Run Scheduler
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Restart Scheduler"]  
+    workflows: ["LSTM Restart Scheduler"]  
     types:
       - completed 
 
