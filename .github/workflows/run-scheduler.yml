@@ -23,7 +23,7 @@ jobs:
         run: |
           rm -rf ~/.kaggle
           rm -rf ~/.config/kaggle
-          pip install 'kaggle==1.6.17'
+          pip install 'kaggle> 1.6.17'
 
   
       - name: Test Kaggle authentication
