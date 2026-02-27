@@ -16,27 +16,26 @@ NOTEBOOK_B_ID = f"{KAGGLE_USERNAME}/xgb-trainer"
 fatal_error = threading.Event()
 
 def trigger_notebook(notebook_id, enable_gpu):
+    safe_id = notebook_id.replace("/", "_")
+
+    if Path(f"/tmp/kernel_push/{safe_id}").exists():
+        shutil.rmtree(f"/tmp/kernel_push/{safe_id}")
+        
+    Path(f"/tmp/kernel_push/{safe_id}").mkdir(parents=True)
+    
+    
     print(f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S')}] Triggering {notebook_id} | GPU={enable_gpu}")
 
-    if Path("/tmp/kernel_push").exists():
-        shutil.rmtree("/tmp/kernel_push")
-    Path("/tmp/kernel_push").mkdir(parents=True)
 
     pull = subprocess.run(
-        ["kaggle", "kernels", "pull", notebook_id, "-p", "/tmp/kernel_push", "-m"],
+        ["kaggle", "kernels", "pull", notebook_id, "-p", f"/tmp/kernel_push/{safe_id}", "-m"],
         capture_output=True, text=True
     )
     if pull.returncode != 0:
         fatal_error.set()
-
-    print(f"  Pull returncode: {pull.returncode}")
-    print(f"  Pull stdout: {pull.stdout.strip()}")
-    print(f"  Pull stderr: {pull.stderr.strip()}")
-    print(f"  Files in /tmp/kernel_push: {list(Path('/tmp/kernel_push').iterdir())}")
-
         
     # Step 2 — open the metadata file
-    meta_path = "/tmp/kernel_push/kernel-metadata.json"
+    meta_path = f"/tmp/kernel_push/{safe_id}/kernel-metadata.json"
     
     with open(meta_path) as f:
         meta = json.load(f)
@@ -45,7 +44,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
     push = subprocess.run(
-        ["kaggle", "kernels", "push", "-p", "/tmp/kernel_push"],
+        ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
         capture_output=True, text=True
     )
 
