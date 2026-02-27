@@ -33,5 +33,5 @@ jobs:
           
           PYTHONUNBUFFERED: 1 
         run:
-          python scheduler.py --notebook lstm-trainer-condensed --label 'XGB Trainer' --workflow xgb-scheduler.yml
+          python scheduler.py --notebook xgb-trainer --label 'XGB Trainer' --workflow xgb-scheduler.yml
           
