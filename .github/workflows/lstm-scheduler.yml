@@ -2,10 +2,8 @@ name: LSTM Run Scheduler
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["LSTM Restart Scheduler"]  
-    types:
-      - completed 
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   run:
@@ -30,7 +28,10 @@ jobs:
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          
           PYTHONUNBUFFERED: 1 
         run:
-          python scheduler.py --notebook lstm-trainer-condensed --gpu --label "LSTM Trainer"
+          python scheduler.py --notebook lstm-trainer-condensed --gpu --label --workflow lstm-scheduler.yml
           
