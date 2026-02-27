@@ -31,18 +31,24 @@ def trigger_notebook(notebook_id, enable_gpu):
         
     Path(f"/tmp/kernel_push/{safe_id}").mkdir(parents=True)
     
-    
     print(f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S')}] Triggering {notebook_id} | GPU={enable_gpu}")
-
 
     pull = subprocess.run(
         ["kaggle", "kernels", "pull", notebook_id, "-p", f"/tmp/kernel_push/{safe_id}", "-m"],
         capture_output=True, text=True
     )
+
+    
     if pull.returncode != 0:
+        print(f"  Pull returncode: {pull.returncode}")
+        print(f"  Pull stdout: {pull.stdout.strip()}")
+        print(f"  Pull stderr: {pull.stderr.strip()}")  # ← this will tell you exactly why
+
         print(f'pull return code is {pull.returncode}')
         print('return code not complete')
         fatal_error.set()
+        exit_line()
+
         
     # Step 2 — open the metadata file
     meta_path = f"/tmp/kernel_push/{safe_id}/kernel-metadata.json"
