@@ -33,5 +33,5 @@ jobs:
           
           PYTHONUNBUFFERED: 1 
         run:
-          python scheduler.py --notebook lstm-trainer-condensed --gpu --label --workflow lstm-scheduler.yml
+          python scheduler.py --notebook lstm-trainer-condensed --gpu --label 'LSTM Trainer' --workflow lstm-scheduler.yml
           
