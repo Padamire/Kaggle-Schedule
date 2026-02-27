@@ -135,6 +135,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
 def is_workflow_already_running(workflow_file):
     github_token = os.environ.get("GH_PAT")
     github_repo = os.environ.get("GITHUB_REPOSITORY")
+    
     result = subprocess.run([
         "curl", "-s",
         "-H", f"Authorization: token {github_token}",
@@ -143,12 +144,14 @@ def is_workflow_already_running(workflow_file):
     ], capture_output=True, text=True)
     
     data = json.loads(result.stdout)
+    print(data)
     runs = data.get("workflow_runs", [])
 
     print(len(runs))
     return len(runs) > 1
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--notebook", required=True)
     parser.add_argument("--gpu", action="store_true", help="Allow GPU usage")
@@ -160,7 +163,7 @@ if __name__ == "__main__":
         print("Another instance already running — exiting", flush=True)
         sys.exit(0)
         
-    while True:
+    else:
         try:
             watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
         except SystemExit:
