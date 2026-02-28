@@ -55,7 +55,8 @@ def trigger_notebook(notebook_id, enable_gpu):
 
     combined = (push.stdout + push.stderr).lower()
 
-
+    print(f'combined value:{combined}')
+    
     if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
         return "quota_exceeded"
         
