@@ -49,7 +49,7 @@ def trigger_notebook(notebook_id, enable_gpu):
         
     meta["enable_gpu"] = enable_gpu
 
-    if gpu_gone:
+    if not enable_gpu:
         meta['machine_shape'] = None
         meta['keywords'] = []
 
@@ -118,9 +118,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
                 return 
         else:
             #Exclusively for XGB
-            return trigger_notebook(notebook_id, enable_gpu=False)
-            
-            
+            return trigger_notebook(notebook_id, enable_gpu=False)       
     #Check Status of notebook to - if unknown, begin run, otherwise carry on
     
     status = get_notebook_status(notebook_id)
