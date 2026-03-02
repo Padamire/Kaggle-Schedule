@@ -46,6 +46,8 @@ def trigger_notebook(notebook_id, enable_gpu):
     
     with open(meta_path) as f:
         meta = json.load(f)
+
+    print(meta)
         
     meta["enable_gpu"] = enable_gpu
 
