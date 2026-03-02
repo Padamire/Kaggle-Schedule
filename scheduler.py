@@ -56,8 +56,6 @@ def trigger_notebook(notebook_id, enable_gpu):
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
 
-    print(f'current pushed meta {meta}')
-    
         
     push = subprocess.run(
         ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
