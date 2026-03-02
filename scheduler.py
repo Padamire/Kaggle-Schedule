@@ -48,7 +48,11 @@ def trigger_notebook(notebook_id, enable_gpu):
         meta = json.load(f)
         
     meta["enable_gpu"] = enable_gpu
-    
+
+    if gpu_gone:
+        meta['machine_shape'] = None
+        meta['keywords'] = []
+
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
 
