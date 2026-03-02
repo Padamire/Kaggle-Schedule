@@ -122,7 +122,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
     
     status = get_notebook_status(notebook_id)
     
-    if 'running' in status:
+    if status == 'running:
         raise workbook_running('Workbook still running')
 
     trigger()
@@ -184,6 +184,11 @@ if __name__ == "__main__":
     else:
         try:
             watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
+
+        except workbook_running:
+            print('Workbook running: exiting gracefully')
+            sys.exit(0)
+            
         except Exception as e:
             print(e)
             sys.exit(1)
