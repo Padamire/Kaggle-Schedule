@@ -13,6 +13,9 @@ import shutil
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
 
+class workbook_running(Exception):
+    pass
+
 def trigger_notebook(notebook_id, enable_gpu):
     safe_id = notebook_id.replace("/", "_")
 
@@ -45,6 +48,7 @@ def trigger_notebook(notebook_id, enable_gpu):
         meta = json.load(f)
         
     meta["enable_gpu"] = enable_gpu
+    
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
         
@@ -58,6 +62,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     print(f'combined value:{combined}')
     
     if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
+        print('quota exceeded')
         return "quota_exceeded"
         
     if push.returncode != 0:
@@ -99,6 +104,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
         if allow_gpu and not gpu_gone:
             result = trigger_notebook(notebook_id, enable_gpu=True)
             if result == "quota_exceeded":
+                print('GPU Gone')
                 gpu_gone = True
                 return trigger_notebook(notebook_id, enable_gpu=False)
             else:
@@ -110,8 +116,10 @@ def watch_notebook(notebook_id, allow_gpu,label):
     #Check Status of notebook to - if unknown, begin run, otherwise carry on
     
     status = get_notebook_status(notebook_id)
+    
     if 'running' in status:
-        exit_line()
+        raise workbook_running('Workbook still running')
+
     trigger()
     
     run_start = datetime.now(timezone.utc)
