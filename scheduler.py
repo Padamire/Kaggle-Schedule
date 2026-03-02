@@ -122,7 +122,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
     
     status = get_notebook_status(notebook_id)
     
-    if status == 'running:
+    if status == 'running':
         raise workbook_running('Workbook still running')
 
     trigger()
