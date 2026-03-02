@@ -46,10 +46,9 @@ def trigger_notebook(notebook_id, enable_gpu):
     
     with open(meta_path) as f:
         meta = json.load(f)
-
-    print(meta)
         
     meta["enable_gpu"] = enable_gpu
+    meta["enable_internet"] = True
 
     if not enable_gpu:
         meta['machine_shape'] = None
