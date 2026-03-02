@@ -124,6 +124,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
     trigger()
 
     if gpu_gone and allow_gpu:
+        print('triggering with CPU now')
         trigger_notebook(notebook_id, enable_gpu=False)
     
     run_start = datetime.now(timezone.utc)
