@@ -106,12 +106,13 @@ def watch_notebook(notebook_id, allow_gpu,label):
             if result == "quota_exceeded":
                 print('GPU Gone')
                 gpu_gone = True
-                return trigger_notebook(notebook_id, enable_gpu=False)
+                return
             else:
                 return 
         else:
             #Exclusively for XGB
             return trigger_notebook(notebook_id, enable_gpu=False)
+            
             
     #Check Status of notebook to - if unknown, begin run, otherwise carry on
     
@@ -121,6 +122,9 @@ def watch_notebook(notebook_id, allow_gpu,label):
         raise workbook_running('Workbook still running')
 
     trigger()
+
+    if gpu_gone and allow_gpu:
+        trigger_notebook(notebook_id, enable_gpu=False)
     
     run_start = datetime.now(timezone.utc)
 
