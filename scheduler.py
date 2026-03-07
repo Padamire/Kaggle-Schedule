@@ -49,13 +49,12 @@ def trigger_notebook(notebook_id, enable_gpu):
         print(meta)
 
     if enable_gpu:          
-        meta["enable_gpu"] = 'true'
-        meta["enable_internet"] = 'true'
-
+        meta["enable_gpu"] = True
+        meta["enable_internet"] = True
 
     if not enable_gpu:
-        meta["enable_gpu"] = 'false'
-        meta["enable_internet"] = 'true'
+        meta["enable_gpu"] = False
+        meta["enable_internet"] = True
         meta['machine_shape'] = None
         meta['keywords'] = []
 
