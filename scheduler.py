@@ -50,7 +50,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     if enable_gpu:          
         meta["enable_gpu"] = True
         meta["enable_internet"] = True
-        meta['accelerator'] = 'NvidiaTeslaP100' 
+        meta['accelerator'] = 'gpu' 
 
     if not enable_gpu:
         meta["enable_gpu"] = False
