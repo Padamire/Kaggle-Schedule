@@ -57,7 +57,16 @@ def trigger_notebook(notebook_id, enable_gpu):
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
 
-        
+    with open(meta_path) as f:
+        verification = json.load(f)
+    
+    print(f"  Metadata written:")
+    print(f"    enable_gpu:    {verification.get('enable_gpu')}")
+    print(f"    machine_shape: {verification.get('machine_shape')}")
+    print(f"    accelerator:   {verification.get('accelerator')}")
+    print(f"    enable_internet: {verification.get('enable_internet')}")
+    print(f"  Full metadata: {json.dumps(verification, indent=2)}")
+
     push = subprocess.run(
         ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
         capture_output=True, text=True
