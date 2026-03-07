@@ -61,15 +61,21 @@ def trigger_notebook(notebook_id, enable_gpu):
 
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
-    
 
-    push = subprocess.run(
-        ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
-        capture_output=True, text=True
-    )
+    if enable_gpu:    
+        push = subprocess.run(
+            ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}", "--accelerator", "NvidiaTeslaP100"],
+            capture_output=True, text=True
+        )
+
+    else:
+        push = subprocess.run(
+            ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
+            capture_output=True, text=True
+        )
 
     combined = (push.stdout + push.stderr).lower()
-
+    
     print(f'combined value:{combined}')
     
     if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
