@@ -3,7 +3,7 @@ name: LSTM Run Scheduler
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/45 * * * *'
 
 jobs:
   run:
