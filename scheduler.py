@@ -156,7 +156,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
         mode = "GPU" if (allow_gpu and not gpu_gone) else "CPU"
         print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
         
-        if status != "running":
+        if status != "running" and status!= 'queued':
             print(f'status error: status is {status}')
             break
 
