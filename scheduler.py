@@ -150,7 +150,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
                     return  # GPU worked fine, done
 
             # GPU is gone — try TPU on Thursdays
-            if datetime.today().weekday() == 3 and not tpu_gone:
+            if (datetime.today().weekday() == 3 or datetime.today().weekday() == 4) and not tpu_gone:
                 result = trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=True)
                 if result == "quota_exceeded":
                     print('TPU quota exceeded')
@@ -158,7 +158,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
                 else:
                     return  # TPU worked fine, done
 
-            # Both GPU and TPU gone (or not Thursday) — fall back to CPU
+            # Both GPU and TPU gone (or not Thursday/Friday) — fall back to CPU
             trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=False)
 
         else:
