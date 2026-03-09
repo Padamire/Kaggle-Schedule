@@ -10,13 +10,18 @@ from pathlib import Path
 import shutil
 
 
+#Walkthrough of different situations:
+
+#LSTM (GPU Over)
+
+
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
 
 class workbook_running(Exception):
     pass
 
-def trigger_notebook(notebook_id, enable_gpu):
+def trigger_notebook(notebook_id, enable_gpu,enable_tpu):
     safe_id = notebook_id.replace("/", "_")
 
     if Path(f"/tmp/kernel_push/{safe_id}").exists():
@@ -51,6 +56,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     if enable_gpu:          
         meta["enable_gpu"] = True
         meta["enable_internet"] = True
+        meta["enable_tpu"] = False
 
     if not enable_gpu:
         meta["enable_gpu"] = False
@@ -58,16 +64,29 @@ def trigger_notebook(notebook_id, enable_gpu):
         meta['machine_shape'] = None
         meta['keywords'] = []
 
-
+        if enable_tpu:
+            meta["enable_tpu"] = True
+        else:
+            meta["enable_tpu"] = False
+            
+        
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
 
+    
     if enable_gpu:    
         push = subprocess.run(
             ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}", "--accelerator", "NvidiaTeslaP100"],
             capture_output=True, text=True
         )
 
+    elif enable_tpu:
+
+        push = subprocess.run(
+            ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}", "--accelerator", "TpuV6E8"],
+            capture_output=True, text=True
+        )
+        
     else:
         push = subprocess.run(
             ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}"],
@@ -78,7 +97,7 @@ def trigger_notebook(notebook_id, enable_gpu):
     
     print(f'combined value:{combined}')
     
-    if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu"]):
+    if any(word in combined for word in ["quota", "exceeded", "limit reached", "no gpu","no tpu"]):
         print('quota exceeded')
         return "quota_exceeded"
         
@@ -114,21 +133,38 @@ def get_notebook_status(notebook_id):
 
 def watch_notebook(notebook_id, allow_gpu,label):
     gpu_gone = False
+    tpu_gone = False
+    
     def trigger():
         #Check if GPU is allowed (False for XGB and True for LSTM) and whether quota is exceeded
-        nonlocal gpu_gone 
-        
-        if allow_gpu and not gpu_gone:
-            result = trigger_notebook(notebook_id, enable_gpu=True)
-            if result == "quota_exceeded":
-                print('GPU Gone')
-                gpu_gone = True
-                return
-            else:
-                return 
+        nonlocal gpu_gone, tpu_gone  # tpu_gone needs to be nonlocal too
+
+        if allow_gpu:
+            # Try GPU first if not already exhausted
+            if not gpu_gone:
+                result = trigger_notebook(notebook_id, enable_gpu=True, enable_tpu=False)
+                if result == "quota_exceeded":
+                    print('GPU quota exceeded')
+                    gpu_gone = True
+                else:
+                    return  # GPU worked fine, done
+
+            # GPU is gone — try TPU on Thursdays
+            if datetime.today().weekday() == 3 and not tpu_gone:
+                result = trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=True)
+                if result == "quota_exceeded":
+                    print('TPU quota exceeded')
+                    tpu_gone = True
+                else:
+                    return  # TPU worked fine, done
+
+            # Both GPU and TPU gone (or not Thursday) — fall back to CPU
+            trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=False)
+
         else:
-            #Exclusively for XGB
-            return trigger_notebook(notebook_id, enable_gpu=False)       
+            # XGB — CPU only, always
+            trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=False)
+
     #Check Status of notebook to - if unknown, begin run, otherwise carry on
     
     status = get_notebook_status(notebook_id)
@@ -138,10 +174,9 @@ def watch_notebook(notebook_id, allow_gpu,label):
 
     trigger()
 
-    if gpu_gone and allow_gpu:
-        print('triggering with CPU now')
-        trigger_notebook(notebook_id, enable_gpu=False)
-    
+    if gpu_gone and tpu_gone:   
+        trigger_notebook(notebook_id, enable_gpu=False,enable_tpu =False)
+        
     run_start = datetime.now(timezone.utc)
 
     while True:
