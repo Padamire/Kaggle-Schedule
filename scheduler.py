@@ -52,7 +52,9 @@ def trigger_notebook(notebook_id, enable_gpu,enable_tpu):
     with open(meta_path) as f:
         meta = json.load(f)
         
-
+    meta.pop('docker_image', None)
+    meta.pop('machine_shape', None)
+    
     if enable_gpu:          
         meta["enable_gpu"] = True
         meta["enable_internet"] = True
