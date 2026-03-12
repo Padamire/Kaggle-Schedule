@@ -83,7 +83,7 @@ def trigger_notebook(notebook_id, enable_gpu,enable_tpu):
     elif enable_tpu:
 
         push = subprocess.run(
-            ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}", "--accelerator", "TpuV6E8"],
+            ["kaggle", "kernels", "push", "-p", f"/tmp/kernel_push/{safe_id}", "--accelerator", "tpuVmV5e8"],
             capture_output=True, text=True
         )
         
