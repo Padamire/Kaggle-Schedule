@@ -177,9 +177,6 @@ def watch_notebook(notebook_id, allow_gpu,label):
 
     trigger()
 
-    if gpu_gone and tpu_gone:   
-        trigger_notebook(notebook_id, enable_gpu=False,enable_tpu =False)
-        
     run_start = datetime.now(timezone.utc)
 
     while True:
