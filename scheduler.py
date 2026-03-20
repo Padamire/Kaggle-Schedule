@@ -1,6 +1,6 @@
 import os
 import json
-import time
+import time as time_module 
 import subprocess
 import sys
 import requests
@@ -183,7 +183,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
 
     while True:
         
-        time.sleep(60)
+        time_module.sleep(60)
         
         status = get_notebook_status(notebook_id)
 
@@ -275,5 +275,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
             sys.exit(1)
-            time.sleep(30)
+            time_module.sleep(30)
 
