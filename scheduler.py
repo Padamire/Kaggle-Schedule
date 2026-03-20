@@ -261,6 +261,10 @@ if __name__ == "__main__":
     else:
         start = time(23, 56)
         end = time(23, 59, 59)
+
+        current_day = now.weekday() 
+        now = datetime.utcnow() 
+        current_time = now.time()
         
         if args.gpu and current_day == 4 and start <= current_time <= end:
             sys.exit(0)
