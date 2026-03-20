@@ -9,14 +9,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 import shutil
 
-
 #Walkthrough of different situations:
 
 #LSTM (GPU Over)
 
-
 KAGGLE_USERNAME = os.environ["KAGGLE_USERNAME"]
 KAGGLE_KEY = os.environ["KAGGLE_KEY"]
+
+#Log How Many Runs We've Done 
 
 class workbook_running(Exception):
     pass
@@ -148,6 +148,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
                 result = trigger_notebook(notebook_id, enable_gpu=True, enable_tpu=False)
                 if result == "quota_exceeded":
                     print('GPU quota exceeded')
+
                     gpu_gone = True
                 else:
                     return  # GPU worked fine, done
@@ -156,6 +157,7 @@ def watch_notebook(notebook_id, allow_gpu,label):
             if (datetime.today().weekday() == 3 or datetime.today().weekday() == 4) and not tpu_gone:
                 result = trigger_notebook(notebook_id, enable_gpu=False, enable_tpu=True)
                 if result == "quota_exceeded":
+
                     print('TPU quota exceeded')
                     tpu_gone = True
                 else:
@@ -188,9 +190,33 @@ def watch_notebook(notebook_id, allow_gpu,label):
         print(f'running status: {status}')
 
         elapsed = (datetime.now(timezone.utc) - run_start).total_seconds() / 3600
-        mode = "GPU" if (allow_gpu and not gpu_gone) else "CPU"
-        print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
+        mode = "GPU" if (allow_gpu and not gpu_gone) elif "TPU" if (allow_gpu and gpu_gone and not tpu_gone) else "CPU"
         
+        print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
+
+        #Cancel CPU between 11:30pm and Midnight on Friday, ensuring it doesnt run at all between these times,
+        #then shut down GPU if its elapsed 5 hours and it is before 8am on the Saturday
+        
+        now = datetime.utcnow() 
+        current_time = now.time()
+        current_day = now.weekday() 
+        start = time(23, 56)
+        end = time(23, 59, 59)
+
+        if allow_gpu and current_day == 4 and start <= current_time <= end:
+            result = subprocess.run(
+            ["kaggle", "kernels", "cancel", notebook_id],
+            capture_output=True, text=True
+        )
+            break
+        
+        if mode == 'GPU' and elapsed > 5 and current_day == 5 and current_time < time(8, 0):
+            result = subprocess.run(
+            ["kaggle", "kernels", "cancel", notebook_id],
+            capture_output=True, text=True
+        )
+            break
+                
         if status != "running" and status!= 'queued':
             print(f'status error: status is {status}')
             break
@@ -228,6 +254,12 @@ if __name__ == "__main__":
         sys.exit(0)
         
     else:
+        start = time(23, 56)
+        end = time(23, 59, 59)
+        
+        if args.pgu and current_day == 4 and start <= current_time <= end:
+            sys.exit(0)
+            
         try:
             watch_notebook(f"{KAGGLE_USERNAME}/{args.notebook}", allow_gpu=args.gpu, label=args.label)
 
