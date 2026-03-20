@@ -190,7 +190,12 @@ def watch_notebook(notebook_id, allow_gpu,label):
         print(f'running status: {status}')
 
         elapsed = (datetime.now(timezone.utc) - run_start).total_seconds() / 3600
-        mode = "GPU" if (allow_gpu and not gpu_gone) elif "TPU" if (allow_gpu and gpu_gone and not tpu_gone) else "CPU"
+        
+        mode = (
+            "GPU" if (allow_gpu and not gpu_gone)
+            else "TPU" if (allow_gpu and gpu_gone and not tpu_gone)
+            else "CPU"
+        )
         
         print(f"[{label}] Status: {status} | Elapsed: {elapsed:.2f}h | Mode: {mode}")
 
@@ -257,7 +262,7 @@ if __name__ == "__main__":
         start = time(23, 56)
         end = time(23, 59, 59)
         
-        if args.pgu and current_day == 4 and start <= current_time <= end:
+        if args.gpu and current_day == 4 and start <= current_time <= end:
             sys.exit(0)
             
         try:
